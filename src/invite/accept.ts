@@ -56,8 +56,9 @@ function popChip(chip: HTMLElement, reduced: boolean) {
   return go(chip, [{ opacity: 0, transform: "translate(-50%, 8px) scale(.85)" }, { opacity: 1, transform: "translate(-50%, 0) scale(1)" }], { duration: 320, easing: POP }, reduced);
 }
 
-/** Resolves when the sequence has finished. Rejects if it is cancelled part way (the page was reset). */
-export async function playAccept(p: Parts, reduced: boolean, signal: AbortSignal): Promise<void> {
+/** Resolves when the sequence has finished. Rejects if it is cancelled part way (the page was reset).
+ *  `onLand` is called as the polaroid drops in, so the words can change with the picture and not after it. */
+export async function playAccept(p: Parts, reduced: boolean, signal: AbortSignal, onLand: () => void): Promise<void> {
   const { stage, ada, you, chip, line, slot, polaroid, caption, flash } = p;
   const W = stage.clientWidth, H = stage.clientHeight, cy = H / 2;
   const adaCX = W * 0.22, youCX = W * 0.78;
@@ -87,6 +88,7 @@ export async function playAccept(p: Parts, reduced: boolean, signal: AbortSignal
   if (!reduced) flash.animate([{ opacity: 0 }, { opacity: 0.92, offset: 0.2 }, { opacity: 0 }], { duration: 300, easing: "ease-out" });
   await wait(70, reduced, signal);
   g(polaroid, [{ opacity: 0, transform: "scale(1.14) rotate(0deg)" }, { opacity: 1, transform: "scale(1) rotate(-3deg)" }], { duration: 420, easing: POP });
+  onLand();
   for (const f of [ada, you]) g(f.y, [{ transform: "none" }, { transform: "translateY(-12px)" }], { duration: 420, easing: EASE_OUT });
   g(ada.s, [{ transform: "rotate(6deg)" }, { transform: "rotate(-1deg)" }], { duration: 420, easing: EASE_OUT });
   await done(g(you.s, [{ transform: "rotate(-6deg)" }, { transform: "rotate(-5deg)" }], { duration: 420, easing: EASE_OUT }));

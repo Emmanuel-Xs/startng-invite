@@ -18,9 +18,9 @@ two of you meet in the middle and take a photo together.
 
 - **Page opens: calm.** Ada pops in and waves once, the dotted line draws to your seat (under a second).
 - **Accept: the "Squish hug + selfie".** You both lean back (170ms), rush together (230ms) and squash on contact with a
-  small lime burst, then tilt in. A camera flash, and a polaroid drops in behind the two of you
-  (caption "Ada + 99plusOne · today's date"). The faces lift into the photo and a "+1 friend" chip pops on its top edge.
-  Plays once, nothing loops.
+  small lime burst, then tilt in. A camera flash (light in both themes), and a polaroid drops in behind the two of you
+  (caption "Ada + 99plusOne · 28 Oct", today's date). The faces lift into the photo and a "+1 friend" chip pops on its top edge.
+  The heading and note change, and the Accepting button goes, as the polaroid drops in. Plays once, nothing loops.
 - Built with the Web Animations API on nested wrappers per face (x, y, scale), following the reference's `combo` block
   step for step: `src/invite/accept.ts`.
 - Motion is transform, opacity and `stroke-dashoffset` only.
@@ -45,6 +45,8 @@ link, because it only checks whether the invite was accepted. The own-link state
 
 **The one new button: Copy link** (a ghost button on the own-link state). The real page has no such button there; it
 lets the empty seat nudge when tapped.
+
+**Links.** "See your friends" and "get your own link" both open https://start.ng/follows in a new tab (`target="_blank" rel="noopener"`).
 
 **The expired picture shows no inviter.** start.ng's API sends nothing about the inviter for a dead link, so there is
 no face or name: two empty dashed seats, a small static "z" on each, and the dotted line broken in the middle.

@@ -16,8 +16,8 @@ type Props = {
   accepted: boolean;
   /** Reduced motion: the sequence jumps to its last frame. */
   reduced: boolean;
-  /** Called when the sequence has finished (straight away with reduced motion). */
-  onDone: () => void;
+  /** Called as the polaroid lands (straight away with reduced motion): the words change then. */
+  onLand: () => void;
   /** Copy link was tapped: the empty seat nudges (the number counts the taps). */
   nudge: number;
 };
@@ -25,11 +25,11 @@ type Props = {
 /** The wrappers one face moves through: x slides, y lifts, s squashes and tilts. Each owns one transform. */
 const useFace = () => ({ x: useRef<HTMLDivElement>(null), y: useRef<HTMLDivElement>(null), s: useRef<HTMLDivElement>(null) });
 
-const today = () => new Date().toLocaleDateString(undefined, { day: "numeric", month: "short" });
+const today = () => new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
 /** The two seats, the dotted line between them and everything that happens to them (see INVITE_SPEC.md, section 4).
  *  It is decorative: the h1, the note and the buttons carry all the meaning. */
-export default function Bench({ inviter, you, mode, accepted, reduced, onDone, nudge }: Props) {
+export default function Bench({ inviter, you, mode, accepted, reduced, onLand, nudge }: Props) {
   const reveal = useId().replace(/:/g, "");
   const stage = useRef<HTMLDivElement>(null);
   const ada = useFace();
@@ -40,8 +40,8 @@ export default function Bench({ inviter, you, mode, accepted, reduced, onDone, n
   const caption = useRef<HTMLSpanElement>(null);
   const flash = useRef<HTMLDivElement>(null);
   const chip = useRef<HTMLSpanElement>(null);
-  const latest = useRef({ reduced, onDone });
-  latest.current = { reduced, onDone };
+  const latest = useRef({ reduced, onLand });
+  latest.current = { reduced, onLand };
 
   const expired = mode === "expired";
   const hasYou = mode === "signed" && !!you;
@@ -59,7 +59,8 @@ export default function Bench({ inviter, you, mode, accepted, reduced, onDone, n
       },
       latest.current.reduced,
       stop.signal,
-    ).then(() => live && latest.current.onDone(), () => {});
+      () => live && latest.current.onLand(),
+    ).catch(() => {});
     return () => { live = false; stop.abort(); resetAccept(box); };
   }, [accepted]); // eslint-disable-line react-hooks/exhaustive-deps
 

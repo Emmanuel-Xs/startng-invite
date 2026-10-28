@@ -19,7 +19,7 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [landed, setLanded] = useState(false); // the call came back: the sequence is playing
-  const [done, setDone] = useState(false); // the sequence has finished: the words change
+  const [done, setDone] = useState(false); // the polaroid is landing: the words change and the button goes
   const [nudge, setNudge] = useState(0);
   const [copied, setCopied] = useState(false);
   const timers = useRef<number[]>([]);
@@ -53,7 +53,7 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
     }
   }
 
-  const finished = useCallback(() => setDone(true), []);
+  const landing = useCallback(() => setDone(true), []);
 
   function copyLink() {
     navigator.clipboard?.writeText(window.location.href).catch(() => {});
@@ -63,17 +63,17 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
   }
 
   const motion = reduced ? "off" : "on";
-  // The demo has no other pages: these links stay where they are.
-  const inert = (e: React.MouseEvent) => e.preventDefault();
+  // Both links go to the real start.ng page, in a new tab so the invite stays open.
+  const follows = { href: "https://start.ng/follows", target: "_blank", rel: "noopener" } as const;
 
   if (invite === undefined && !error) return <section className="container follows-page"><p className="board-sub">Loading...</p></section>;
   if (invite === null) {
     return (
       <section className="container follows-page">
         <div className="follows-invite-card" data-motion={motion}>
-          <Bench inviter={null} you={null} mode="expired" accepted={false} reduced={reduced} onDone={finished} nudge={0} />
+          <Bench inviter={null} you={null} mode="expired" accepted={false} reduced={reduced} onLand={landing} nudge={0} />
           <h1>This invite has expired</h1>
-          <p className="note">Invite links only last a while. Ask your friend to send a new one, or <a href="/follows" onClick={inert}>get your own link</a> to share.</p>
+          <p className="note">Invite links only last a while. Ask your friend to send a new one, or <a {...follows}>get your own link</a> to share.</p>
         </div>
       </section>
     );
@@ -88,7 +88,7 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
   return (
     <section className="container follows-page">
       <div className="follows-invite-card" data-motion={motion}>
-        <Bench inviter={inviter} you={own ? null : user} mode={mode} accepted={landed} reduced={reduced} onDone={finished} nudge={nudge} />
+        <Bench inviter={inviter} you={own ? null : user} mode={mode} accepted={landed} reduced={reduced} onLand={landing} nudge={nudge} />
         <h1 aria-live="polite"><span key={heading} className={done ? "swap" : undefined}>{heading}</span></h1>
         {own ? (
           <>
@@ -96,7 +96,7 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
             <button type="button" className="ghost" onClick={copyLink}>{copied ? "Copied" : "Copy link"}</button>
           </>
         ) : done ? (
-          <p className="note swap">You follow each other now. Look for {name} on the friends board next time you play. <a href="/follows" onClick={inert}>See your friends</a></p>
+          <p className="note swap">You follow each other now. Look for {name} on the friends board next time you play. <a {...follows}>See your friends</a></p>
         ) : (
           <>
             <p className="note">Accept and you'll follow each other. You'll see each other on friends' leaderboards and can play in the same crews.</p>
