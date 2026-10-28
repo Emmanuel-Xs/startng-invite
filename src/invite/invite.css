@@ -1,109 +1,62 @@
 /* The bench on the friend invite page (see INVITE_SPEC.md). Colours come from the site's variables, so dark mode works.
-   Motion: transform, opacity and stroke-dashoffset only. The base rules are every state's FINAL picture; the animations
-   only play when the card says data-motion="on", so reduced motion shows the final pictures with nothing to switch off. */
+   Motion: transform, opacity and stroke-dashoffset only. The accept sequence is the Web Animations API (accept.ts);
+   the opening is CSS, and only plays when the card says data-motion="on". The base rules are every state's final picture. */
 
 .follows-invite-card h1 { overflow-wrap: anywhere; }
+.follows-invite-card .note a { font-weight: 700; text-decoration: underline; }
+.follows-invite-card button:focus-visible, .follows-invite-card a:focus-visible, .demo-controls button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-/* ---- the picture ---- */
-.bench { --seat: 96px; --gap: 140px; --land: 40px; --room: 34px; --lean: 18px; --close: calc((var(--gap) - var(--land)) / 2);
-  --line-y: calc(var(--room) + var(--seat) / 2);
-  position: relative; flex: none; width: calc(var(--seat) * 2 + var(--gap)); max-width: 100%; height: calc(var(--seat) + var(--room)); margin: 0 auto 4px; }
-@media (max-width: 600px) { .bench { --seat: 72px; --gap: 112px; --land: 34px; --room: 30px; --lean: 15px; } }
+/* ---- the picture: a stage with Ada's seat at 22% and yours at 78% ---- */
+.bench { --seat: 84px; position: relative; flex: none; align-self: stretch; height: 190px; overflow: hidden; border-radius: 12px; margin-bottom: 4px; }
 
-/* the two seats. Ada's is on the left, the one saved for you is on the right. */
-.bench-seat, .bench-slot { position: absolute; top: var(--room); width: var(--seat); height: var(--seat); }
-.bench-seat { z-index: 2; }
-.bench-seat--ada { left: 0; transform-origin: 50% 100%; }
-.bench-seat--you { right: 0; transform-origin: 50% 100%; }
-.bench-hop, .bench-pop, .bench-bob { width: 100%; height: 100%; }
+.bench-seat, .bench-slot { position: absolute; top: calc(50% - var(--seat) / 2); width: var(--seat); height: var(--seat); }
+.bench-seat--ada { left: calc(22% - var(--seat) / 2); z-index: 2; }
+.bench-seat--you { left: calc(78% - var(--seat) / 2); z-index: 3; opacity: .55; } /* you, waiting in your seat, a little faded */
+.bench-y, .bench-s, .bench-pop, .bench-bob { width: 100%; height: 100%; }
 .bench-pop { transform-origin: 50% 90%; }
 .bench-bob { position: relative; }
+
 /* the face, with start.ng's .avatar circle (lime, first letter) over it until the face is ready */
 .avatar-swap { position: relative; display: block; flex: none; }
 .avatar-swap .avatar-face, .avatar-swap > .avatar { width: 100%; height: 100%; }
 .avatar-swap > .avatar { position: absolute; inset: 0; transition: opacity 200ms ease-out; }
 .avatar-swap > .avatar[data-gone="true"] { opacity: 0; pointer-events: none; }
 .bench-seat .avatar-swap, .bench-seat .avatar { width: 100%; height: 100%; }
-.bench-seat .avatar { font-size: 2.2rem; }
+.bench-seat .avatar { font-size: 2rem; }
 [data-motion="off"] .avatar-swap > .avatar { transition: none; }
 
-/* the empty seat: a dashed circle that also hides the line behind a faded face */
-.bench-slot { right: 0; z-index: 1; display: grid; place-items: center; border-radius: 50%; border: 2px dashed var(--muted); background: var(--card); }
+/* an empty seat: a dashed circle (it also hides the line behind a faded face) */
+.bench-slot { z-index: 1; display: grid; place-items: center; border-radius: 50%; border: 2px dashed var(--muted); background: var(--card); }
+.bench-slot--left { left: calc(22% - var(--seat) / 2); }
+.bench-slot--right { left: calc(78% - var(--seat) / 2); }
 .bench-silhouette { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; fill: var(--muted); opacity: 0; }
 .bench-silhouette[data-on="true"] { opacity: .45; }
 .bench-q { position: absolute; font-size: calc(var(--seat) * .42); font-weight: 800; color: var(--muted); opacity: 0; }
 .bench-q[data-on="true"] { opacity: .75; }
 .bench[data-mode="signed"] .bench-slot { border-color: transparent; }
-.bench[data-mode="expired"] .bench-slot { border-color: color-mix(in srgb, var(--muted) 50%, transparent); }
-.bench[data-mode="expired"] .bench-q[data-on="true"] { opacity: .4; }
+.bench[data-mode="expired"] .bench-slot { border-color: color-mix(in srgb, var(--muted) 55%, transparent); }
+.bench-z { position: absolute; top: -8px; right: -2px; font: 700 .95rem var(--mono); color: var(--muted); } /* static, never floats */
 
-/* you, waiting in your seat, a little faded */
-.bench-seat--you .bench-pop { opacity: .55; }
-
-/* the dotted line from Ada to the empty seat: dots, shown through a mask that is "drawn" with stroke-dashoffset */
-.bench-line { position: absolute; z-index: 0; left: calc(var(--seat) / 2); width: calc(100% - var(--seat)); top: calc(var(--line-y) - 6px); height: 12px; overflow: visible; }
+/* the dotted line between the seats: dots, shown through a mask that is "drawn" with stroke-dashoffset */
+.bench-line { position: absolute; z-index: 0; left: 22%; width: 56%; top: calc(50% - 6px); height: 12px; overflow: visible; }
 .bench-line mask { mask-type: alpha; }
 .bench-line-reveal { stroke: var(--ink); stroke-width: 12; stroke-dasharray: 1; stroke-dashoffset: 0; }
 .bench-line-dots { stroke: var(--muted); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 0 9; }
 .bench[data-mode="expired"] .bench-line { opacity: .6; }
 
-/* the solid lime line, between the two faces once they sit together */
-.bench-link { position: absolute; z-index: 1; left: 50%; width: calc(var(--land) + 16px); margin-left: calc((var(--land) + 16px) / -2); top: calc(var(--line-y) - 6px); height: 12px; overflow: visible; opacity: 0; }
-.bench-link line { stroke-dasharray: 1; stroke-dashoffset: 0; }
-.bench-link-edge { stroke: var(--ink); stroke-width: 9; }
-.bench-link-fill { stroke: var(--lime); stroke-width: 5; }
-.bench-tag { position: absolute; z-index: 3; top: 0; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; opacity: 0; }
-.bench-tag .tag { border: 1px solid var(--ink); }
-.bench-burst { position: absolute; z-index: 3; left: 50%; top: var(--line-y); width: 0; height: 0; pointer-events: none; }
-.bench-burst i { position: absolute; left: -4px; top: -4px; width: 9px; height: 9px; border-radius: 50%; background: var(--lime); border: 1px solid var(--ink); opacity: 0; }
-.bench-burst i:nth-child(1) { --dx: -62px; --dy: -17px; }
-.bench-burst i:nth-child(2) { --dx: -72px; --dy: -39px; }
-.bench-burst i:nth-child(3) { --dx: -47px; --dy: -43px; }
-.bench-burst i:nth-child(4) { --dx: -46px; --dy: -68px; }
-.bench-burst i:nth-child(5) { --dx: -22px; --dy: -60px; }
-.bench-burst i:nth-child(6) { --dx: -10px; --dy: -81px; }
-.bench-burst i:nth-child(7) { --dx: 8px; --dy: -64px; }
-.bench-burst i:nth-child(8) { --dx: 29px; --dy: -77px; }
-.bench-burst i:nth-child(9) { --dx: 36px; --dy: -53px; }
-.bench-burst i:nth-child(10) { --dx: 61px; --dy: -55px; }
-.bench-burst i:nth-child(11) { --dx: 56px; --dy: -31px; }
-.bench-burst i:nth-child(12) { --dx: 79px; --dy: -21px; }
+/* the accept moment's pieces: they wait at opacity 0 until accept.ts plays them */
+.bench-polaroid { position: absolute; z-index: 1; left: 50%; top: calc(50% - 62px); width: 200px; height: 140px; margin-left: -100px; border-radius: 4px; opacity: 0;
+  background: var(--card); box-shadow: 0 6px 14px color-mix(in srgb, var(--ink) 12%, transparent), 0 0 0 1px var(--line); }
+.bench-polaroid span { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-family: var(--mono); font-size: .64rem; letter-spacing: .04em; white-space: nowrap; color: var(--ink); opacity: 0; }
+.bench-chip { position: absolute; z-index: 6; left: 50%; top: 10px; transform: translateX(-50%); opacity: 0; white-space: nowrap;
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; background: var(--lime); color: var(--on-lime); border: 1px solid var(--ink); padding: 3px 10px; border-radius: 6px; }
+.bench-spark { position: absolute; z-index: 5; width: 9px; height: 9px; border-radius: 50%; background: var(--lime); border: 1.5px solid var(--ink); pointer-events: none; }
+.bench-flash { position: absolute; z-index: 7; inset: 0; background: var(--card); opacity: 0; pointer-events: none; }
 
-/* accepted: this is where the faces end up (the hop and the bump play toward it) */
-.bench[data-phase="busy"] .bench-seat--you .bench-pop { opacity: 1; transform: scale(.95); }
-.bench[data-phase="accepted"] .bench-seat--you .bench-pop { opacity: 1; }
-.bench[data-phase="accepted"] .bench-seat--you { transform: translateX(calc(var(--close) * -1)); }
-.bench[data-phase="accepted"] .bench-seat--ada { transform: translateX(var(--close)); }
-.bench[data-phase="accepted"] .bench-line, .bench[data-phase="accepted"] .bench-slot { opacity: 0; }
-.bench[data-phase="accepted"] .bench-link, .bench[data-phase="accepted"] .bench-tag { opacity: 1; }
-
-/* expired: Ada is asleep, with her eyes shut and a small z */
-.bench-seat--ada .bench-bob { border-radius: 50%; background: var(--card); } /* hides the line behind a faded face */
-.bench[data-mode="expired"] .bench-seat--ada .avatar-swap, .bench[data-mode="expired"] .bench-seat--ada .bench-bob > .avatar { opacity: .5; }
-.bench-eyes { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: var(--ink); stroke-width: 2.6; stroke-linecap: round; }
-.bench-z { position: absolute; z-index: 3; left: calc(var(--seat) * .86); top: calc(var(--room) - 14px); font: 700 1.05rem var(--mono); color: var(--muted); }
-
-/* the card: the picture, then the words. The words swap on the landing. */
-.follows-invite-card .empty { margin: 0; padding: 0; border: 0; }
-.follows-invite-card .bench + .empty { font-size: .95rem; line-height: 1.5; }
-
-/* ---- the demo controls ---- */
-.demo { padding-top: 20px; }
-.demo-controls {  padding: 14px 16px; border: 1px dashed var(--line); border-radius: 14px; display: grid; gap: 10px; }
-.demo-controls .eyebrow { margin: 0; font-size: .72rem; letter-spacing: .2em; color: var(--muted); }
-.demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.demo-label { font-family: var(--mono); font-size: .78rem; color: var(--muted); margin-right: 4px; }
-.demo-controls button { padding: 7px 12px; font-size: .85rem; border-radius: 8px; }
-.demo-controls button.on { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }
-.demo-controls button.ghost:focus-visible, .follows-invite-card button:focus-visible, .follows-invite-card a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.demo-me { display: inline-flex; }
-
-/* ---- motion: only when the card says so ---- */
-/* page opens: Ada pops in and waves once, the line draws toward the empty seat, the seat fades in. Under a second. */
-[data-motion="on"] .bench .bench-seat--ada .bench-pop { animation: bench-hello 760ms backwards; }
-[data-motion="on"] .bench[data-mode="expired"] .bench-seat--ada .bench-pop { animation: bench-doze 420ms cubic-bezier(0.23, 1, 0.32, 1) backwards; }
-[data-motion="on"] .bench .bench-line-reveal { animation: bench-draw 560ms cubic-bezier(0.23, 1, 0.32, 1) 200ms backwards; }
-[data-motion="on"] .bench .bench-slot { animation: bench-seat-in 300ms cubic-bezier(0.23, 1, 0.32, 1) 420ms backwards; }
+/* ---- the opening: Ada pops in and waves once, the line draws toward the empty seat, the seat fades in. Under a second. ---- */
+[data-motion="on"] .bench-seat--ada .bench-pop { animation: bench-hello 760ms backwards; }
+[data-motion="on"] .bench-line-reveal { animation: bench-draw 560ms cubic-bezier(0.23, 1, 0.32, 1) 200ms backwards; }
+[data-motion="on"] .bench-slot { animation: bench-seat-in 300ms cubic-bezier(0.23, 1, 0.32, 1) 420ms backwards; }
 @keyframes bench-hello {
   0% { opacity: 0; transform: scale(.9) rotate(0); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
   38% { opacity: 1; transform: scale(1) rotate(0); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
@@ -111,7 +64,6 @@
   80% { transform: scale(1) rotate(6deg); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
   100% { transform: scale(1) rotate(0); }
 }
-@keyframes bench-doze { from { opacity: 0; transform: scale(.9); } }
 @keyframes bench-draw { from { stroke-dashoffset: 1; } }
 @keyframes bench-seat-in { from { opacity: 0; transform: scale(.9); } }
 
@@ -119,47 +71,8 @@
 [data-motion="on"] .bench-silhouette, [data-motion="on"] .bench-q { transition: opacity 280ms ease-out; }
 [data-motion="on"] .bench-seat--you .bench-pop { animation: bench-you-in 320ms cubic-bezier(0.23, 1, 0.32, 1) backwards; }
 @keyframes bench-you-in { from { opacity: 0; transform: scale(.9); } }
-[data-motion="on"] .bench-seat--you .bench-pop { transition: opacity 160ms ease-out, transform 160ms ease-out; }
 
-/* tap Accept: your face crouches while the call is out, then hops along the line, the two lean together once,
-   the dotted line turns into the lime one, "Friends" pops and a few lime dots fly. About 1.2s from the tap. */
-[data-motion="on"] .bench[data-phase="accepted"] .bench-seat--you { animation: bench-you-x 960ms both; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-seat--you .bench-hop { animation: bench-hop-y 480ms both; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-seat--ada { animation: bench-ada-x 960ms both; }
-[data-motion="on"] .bench .bench-line, [data-motion="on"] .bench .bench-slot { transition: opacity 200ms ease-out; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-slot { transition-delay: 120ms; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-line { transition-delay: 380ms; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-link-edge,
-[data-motion="on"] .bench[data-phase="accepted"] .bench-link-fill { animation: bench-draw 320ms cubic-bezier(0.23, 1, 0.32, 1) 440ms backwards; }
-[data-motion="on"] .bench .bench-link { transition: opacity 0s 440ms; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-tag .tag { animation: bench-tag-in 320ms cubic-bezier(0.23, 1, 0.32, 1) 560ms backwards; }
-[data-motion="on"] .bench .bench-tag { transition: opacity 0s 560ms; }
-[data-motion="on"] .bench[data-phase="accepted"] .bench-burst i { animation: bench-burst 600ms cubic-bezier(0.23, 1, 0.32, 1) 480ms forwards; }
-@keyframes bench-you-x {
-  0% { transform: translateX(0) rotate(0); animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
-  50% { transform: translateX(calc(var(--close) * -1)) rotate(0); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  62% { transform: translateX(calc((var(--close) + var(--lean)) * -1)) rotate(-8deg); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  100% { transform: translateX(calc(var(--close) * -1)) rotate(0); }
-}
-@keyframes bench-ada-x {
-  0% { transform: translateX(0) rotate(0); animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1); }
-  50% { transform: translateX(var(--close)) rotate(0); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  62% { transform: translateX(calc(var(--close) + var(--lean))) rotate(8deg); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
-  100% { transform: translateX(var(--close)) rotate(0); }
-}
-@keyframes bench-hop-y {
-  0% { transform: translateY(0); animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1); }
-  50% { transform: translateY(-30px); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
-  100% { transform: translateY(0); }
-}
-@keyframes bench-tag-in { from { opacity: 0; transform: translateY(6px) scale(.9); } }
-@keyframes bench-burst {
-  0% { opacity: 1; transform: translate(0, 0) scale(.9); }
-  65% { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.9); }
-}
-
-/* the words that change on the landing fade in */
+/* the words that change after the sequence fade in */
 [data-motion="on"] .swap { animation: bench-text-in 240ms ease-out backwards; }
 @keyframes bench-text-in { from { opacity: 0; transform: translateY(4px); } }
 
@@ -179,3 +92,12 @@
   .bench *, .swap { animation: none !important; transition: none !important; }
   .avatar-swap > .avatar { transition: none; }
 }
+
+/* ---- the demo controls ---- */
+.demo { padding-top: 20px; }
+.demo-controls { padding: 14px 16px; border: 1px dashed var(--line); border-radius: 14px; display: grid; gap: 10px; }
+.demo-controls .eyebrow { margin: 0; font-size: .72rem; letter-spacing: .2em; color: var(--muted); }
+.demo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.demo-label { font-family: var(--mono); font-size: .78rem; color: var(--muted); margin-right: 4px; }
+.demo-controls button { padding: 7px 12px; font-size: .85rem; border-radius: 8px; }
+.demo-controls button.on { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }

@@ -1,0 +1,370 @@
+<title>Invite Accept Variations</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column of variant cards, each a "bench" stage over its copy and controls. start.ng's own tokens. */
+:root {
+  --bg: #f6f5ee; --card: #fffefa; --ink: #292a23; --muted: #6b6c63; --line: #e4e2d6;
+  --lime: #d8fd71; --on-lime: #292a23; --dot: rgba(41, 42, 35, .28); --paper: #ffffff; --flash: #ffffff;
+  --ok: #2e7d32; --shadow: rgba(41, 42, 35, .12);
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #292a23; --card: #33342c; --ink: #f6f5ee; --muted: #b0b1a6; --line: #4a4b41; --on-lime: #292a23;
+  --dot: rgba(246, 245, 238, .3); --paper: #f6f5ee; --flash: #fffefa; --ok: #7fd884; --shadow: rgba(0, 0, 0, .35); color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #292a23; --card: #33342c; --ink: #f6f5ee; --muted: #b0b1a6; --line: #4a4b41; --on-lime: #292a23;
+  --dot: rgba(246, 245, 238, .3); --paper: #f6f5ee; --flash: #fffefa; --ok: #7fd884; --shadow: rgba(0, 0, 0, .35); color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; }
+.wrap { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.eyebrow { font-family: var(--mono); text-transform: uppercase; letter-spacing: .22em; font-size: .75rem; color: var(--muted); margin: 0; }
+h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.04em; margin: 6px 0 10px; text-wrap: balance; }
+mark { background: linear-gradient(transparent 62%, var(--lime) 62%, var(--lime) 92%, transparent 92%); color: inherit; padding: 0 .06em; }
+.lead { color: var(--muted); max-width: 62ch; margin: 0; }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font: 700 .95rem var(--sans); border-radius: 10px; padding: 10px 18px; cursor: pointer; border: 0; background: var(--ink); color: var(--bg); }
+button.ghost { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+button.ghost:hover { border-color: var(--ink); }
+button[aria-pressed="true"] { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }
+button:disabled { opacity: .55; cursor: default; }
+button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 18px; }
+.v { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.v h2 { font-size: 1.1rem; margin: 0; letter-spacing: -.02em; }
+.v .why { color: var(--muted); font-size: .9rem; margin: 2px 0 0; }
+.pick { font-family: var(--mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; background: var(--lime); color: var(--on-lime); padding: 2px 8px; border-radius: 6px; margin-left: 6px; vertical-align: 2px; }
+.copy { text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.copy .h { font-weight: 800; font-size: 1.15rem; letter-spacing: -.02em; }
+.copy .n { color: var(--muted); font-size: .88rem; }
+.ctrl { display: flex; gap: 8px; justify-content: center; }
+
+/* The bench */
+.stage { position: relative; height: 190px; overflow: hidden; border-radius: 12px; }
+.seatline { position: absolute; top: 50%; left: calc(22% + 46px); right: calc(22% + 46px); border-top: 3px dotted var(--dot); transform: translateY(-50%); }
+.fx { position: absolute; top: calc(50% - 42px); width: 84px; height: 84px; }
+.fx.ada { left: calc(22% - 42px); z-index: 2; }
+.fx.you { left: calc(78% - 42px); z-index: 3; opacity: .55; }
+.fy, .fs { width: 100%; height: 100%; }
+.face { width: 84px; height: 84px; border-radius: 50%; background: var(--lime); border: 2px solid var(--ink); overflow: hidden; display: block; }
+.face img { width: 100%; height: 100%; display: block; }
+.tag { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); opacity: 0; font-family: var(--mono); font-size: .72rem; letter-spacing: .16em;
+  text-transform: uppercase; background: var(--lime); color: var(--on-lime); border: 1px solid var(--ink); padding: 3px 10px; border-radius: 6px; z-index: 6; white-space: nowrap; }
+.spark { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--lime); border: 1.5px solid var(--ink); z-index: 5; pointer-events: none; }
+.flash { position: absolute; inset: 0; background: var(--flash); opacity: 0; z-index: 7; pointer-events: none; }
+.polaroid { position: absolute; left: 50%; top: calc(50% - 62px); width: 200px; height: 140px; margin-left: -100px; background: var(--paper); border-radius: 4px;
+  box-shadow: 0 10px 24px var(--shadow), 0 0 0 1px var(--line); opacity: 0; z-index: 1; }
+.polaroid span { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-family: var(--mono); font-size: .64rem; white-space: nowrap; color: #292a23; letter-spacing: .04em; opacity: 0; }
+.ticket { position: absolute; top: calc(50% - 19px); height: 38px; width: 48px; background: var(--lime); color: var(--on-lime); border: 1.5px solid var(--ink);
+  font-family: var(--mono); font-size: .6rem; font-weight: 700; letter-spacing: .08em; display: grid; place-items: center; z-index: 4; text-transform: uppercase; }
+.ticket.l { left: calc(50% - 48px); border-radius: 8px 0 0 8px; border-right: 1.5px dashed var(--ink); }
+.ticket.r { left: 50%; border-radius: 0 8px 8px 0; border-left: 0; }
+.stamp { position: absolute; left: calc(50% - 25px); top: calc(50% - 25px); width: 50px; height: 50px; border-radius: 50%; border: 2.5px solid var(--ink); color: var(--ink);
+  font: 800 .62rem var(--mono); letter-spacing: .06em; display: grid; place-items: center; opacity: 0; z-index: 5; background: color-mix(in srgb, var(--card) 70%, transparent); }
+.ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; z-index: 4; }
+.bead { position: absolute; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--dot); }
+
+.sleep .face { background: var(--card); border: 2px dashed var(--dot); }
+.zz { position: absolute; font: 700 .9rem var(--mono); color: var(--muted); }
+
+/* Copy table */
+.tbl-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .9rem; }
+th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td.old { color: var(--muted); }
+td b { display: block; }
+.section-h { font-size: 1.3rem; letter-spacing: -.03em; margin: 0 0 4px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">start.ng · friend invite · accept moment</p>
+    <h1>Ways to <mark>become friends</mark></h1>
+    <p class="lead">Each card is the same invite from Ada, with real start.ng faces. Tap Accept on any card to see how that version celebrates, and Reset to try it again. Below the cards is new copy for every state of the page.</p>
+  </header>
+
+  <div class="bar" role="group" aria-label="All variations">
+    <button type="button" id="playAll">Accept on all</button>
+    <button type="button" class="ghost" id="resetAll">Reset all</button>
+    <button type="button" class="ghost" id="reduce" aria-pressed="false">Preview reduced motion</button>
+  </div>
+
+  <section class="grid" id="grid" aria-label="Variations"></section>
+
+  <section>
+    <h2 class="section-h">The copy, state by state</h2>
+    <p class="lead" style="margin-bottom:12px">Today the heading says "Ada wants to be friends" even to Ada on her own link, because the real page only checks whether the invite was accepted. The expired state also can't name the friend: start.ng's API sends nothing back for a dead link.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>State</th><th>Today</th><th>New</th></tr></thead>
+        <tbody>
+          <tr><td>Guest</td><td class="old"><b>Ada wants to be friends on start.ng</b>Friends follow each other, so you can see each other on friends' leaderboards and in crews.<br>[Sign in to accept]</td>
+            <td><b>Ada saved you a seat</b>Accept and you'll follow each other. You'll see each other on friends' leaderboards and can play in the same crews.<br>[Sign in to accept]</td></tr>
+          <tr><td>Signed in</td><td class="old"><b>Ada wants to be friends on start.ng</b>Same note.<br>[Accept]</td>
+            <td><b>Ada saved you a seat</b>Same note as above.<br>[Accept]</td></tr>
+          <tr><td>Accepting</td><td class="old">[...]</td><td>[Accepting...]</td></tr>
+          <tr><td>Accepted</td><td class="old"><b>You and Ada are friends</b>You now follow each other. See your friends</td>
+            <td><b>You and Ada are friends</b>You follow each other now. Look for Ada on the friends board next time you play. <u>See your friends</u></td></tr>
+          <tr><td>Own link</td><td class="old"><b>Ada wants to be friends on start.ng</b>This is your own invite link. Send it to a friend: anyone who accepts it becomes your friend.</td>
+            <td><b>This is your invite link</b>Send it to a friend. Whoever accepts takes the empty seat and becomes your friend.<br>[Copy link] then [Copied]</td></tr>
+          <tr><td>Expired</td><td class="old">This invite link has expired or doesn't exist. Ask your friend for a new one, or get your own link.</td>
+            <td><b>This invite has expired</b>Invite links only last a while. Ask your friend to send a new one, or <u>get your own link</u> to share.<br><span style="color:var(--muted)">Picture: both seats empty and dozing, the line broken.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+const ADA = "{{ADA}}";
+const YOU = "{{YOU}}";
+const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+const POP = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+const F = 84;
+let reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const VARIANTS = [
+  { key: "combo", name: "Squish hug + selfie", pick: true,
+    why: "You both lean back, rush together and squash into a hug. Then a flash, and the moment lands as a polaroid of the two of you with today's date. The hug is the feeling, the photo is the keepsake." },
+  { key: "squish", name: "Squish hug",
+    why: "Both lean back, rush together and squash on contact, ending as an overlapping pair, the way friends sit in a photo. Classic anticipation, squash and settle." },
+  { key: "beads", name: "Friendship bracelet",
+    why: "The dotted line is the invite. On Accept its dots grow into lime beads and gather into a bracelet between you. Echoes start.ng's bead necklace item." },
+  { key: "selfie", name: "Selfie",
+    why: "You both slide in and tilt toward each other, a flash, and a polaroid of the two of you drops into place: friends since today." },
+  { key: "ticket", name: "Torn ticket",
+    why: "The invite is a ticket between the seats. Accept stamps it, it tears at the dashes, and each of you keeps your half." },
+  { key: "hop", name: "Hop over (current, tuned)",
+    why: "Today's version with more character: a crouch before the jump, a real arc, a squash on landing and a bigger burst." },
+];
+
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function face(src, cls) {
+  const x = el("div", "fx " + cls), y = el("div", "fy"), s = el("div", "fs"), f = el("span", "face");
+  const img = new Image(); img.src = src; img.alt = ""; f.append(img); s.append(f); y.append(s); x.append(y);
+  return { x, y, s };
+}
+
+/* Animate, or jump straight to the last frame when motion is reduced. */
+function go(target, frames, opts) {
+  if (reduced) return target.animate([frames[frames.length - 1]], { duration: 1, fill: "forwards" });
+  return target.animate(frames, { fill: "forwards", ...opts });
+}
+const wait = (ms) => reduced ? Promise.resolve() : new Promise((r) => setTimeout(r, ms));
+
+function burst(stage, x, y, n = 12) {
+  if (reduced) return;
+  for (let i = 0; i < n; i++) {
+    const d = el("i", "spark");
+    d.style.left = x - 4.5 + "px"; d.style.top = y - 4.5 + "px";
+    stage.append(d);
+    const a = (i / n) * Math.PI * 2 + Math.random() * .4, r = 38 + Math.random() * 26, sc = .6 + Math.random() * .6;
+    d.animate([{ transform: "translate(0,0) scale(.3)", opacity: 1 },
+      { transform: `translate(${Math.cos(a) * r}px,${Math.sin(a) * r}px) scale(${sc})`, opacity: 1, offset: .7 },
+      { transform: `translate(${Math.cos(a) * r * 1.15}px,${Math.sin(a) * r * 1.15 + 6}px) scale(0)`, opacity: 0 }],
+      { duration: 720, easing: EASE_OUT }).finished.then(() => d.remove());
+  }
+}
+function popTag(tag) {
+  return go(tag, [{ opacity: 0, transform: "translate(-50%, 8px) scale(.85)" }, { opacity: 1, transform: "translate(-50%, 0) scale(1)" }], { duration: 320, easing: POP });
+}
+
+function build(v, i) {
+  const card = el("article", "v"); card.dataset.v = v.key;
+  card.innerHTML = `<div><h2>${i + 1}. ${v.name}${v.pick ? '<span class="pick">my pick</span>' : ""}</h2><p class="why">${v.why}</p></div>`;
+  const stage = el("div", "stage"); stage.setAttribute("aria-hidden", "true");
+  const copy = el("div", "copy", `<div class="h" aria-live="polite">Ada saved you a seat</div><div class="n">Accept and you'll follow each other.</div>`);
+  const ctrl = el("div", "ctrl");
+  const accept = el("button", "", "Accept"); accept.type = "button";
+  const reset = el("button", "ghost", "Reset"); reset.type = "button";
+  ctrl.append(accept, reset);
+  card.append(stage, copy, ctrl);
+
+  const st = { v, card, stage, copy, accept, playing: false, done: false };
+  st.gen = 0;
+  st.setup = () => {
+    st.gen++;
+    stage.querySelectorAll("*").forEach((n) => n.getAnimations().forEach((a) => a.cancel()));
+    stage.innerHTML = "";
+    st.ada = face(ADA, "ada"); st.you = face(YOU, "you");
+    st.tag = el("span", "tag", (v.key === "squish" || v.key === "combo") ? "+1 friend" : "Friends");
+    if (v.key !== "beads" && v.key !== "ticket") { st.line = el("div", "seatline"); stage.append(st.line); }
+    if (v.key === "selfie" || v.key === "combo") { st.polaroid = el("div", "polaroid", `<span>Ada + 99plusOne · ${new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"})}</span>`); stage.append(st.polaroid); st.flash = el("div", "flash"); }
+    if (v.key === "ticket") { st.line = el("div", "seatline"); stage.append(st.line);
+      st.tl = el("div", "ticket l", "Ada"); st.tr = el("div", "ticket r", "You"); st.stamp = el("div", "stamp", "IN!"); }
+    if (v.key === "beads") { st.ring = el("div", "ring"); st.beads = []; }
+    stage.append(st.ada.x, st.you.x, st.tag);
+    if (st.flash) stage.append(st.flash);
+    if (st.tl) stage.append(st.tl, st.tr, st.stamp);
+    if (st.ring) { stage.append(st.ring); layoutBeads(st); }
+    copy.querySelector(".h").textContent = "Ada saved you a seat";
+    copy.querySelector(".n").textContent = "Accept and you'll follow each other.";
+    accept.textContent = "Accept"; accept.disabled = false; st.done = false; st.playing = false;
+  };
+  st.setup();
+
+  accept.addEventListener("click", () => play(st));
+  reset.addEventListener("click", () => st.setup());
+  return st;
+}
+
+/* Beads start as the dotted line between the seats. */
+function layoutBeads(st) {
+  const W = st.stage.clientWidth || 340, n = 11;
+  const from = W * .22 + 48, to = W * .78 - 48;
+  st.ring.innerHTML = ""; st.beads = [];
+  for (let i = 0; i < n; i++) {
+    const b = el("i", "bead"); const x = from + (to - from) * (i / (n - 1)) - W / 2;
+    b.style.left = x + "px"; b.style.top = "0px"; b.dataset.x = x;
+    st.ring.append(b); st.beads.push(b);
+  }
+}
+
+async function play(st) {
+  if (st.playing || st.done) return;
+  const gen = st.gen;
+  try { await run(st); } catch (e) { /* reset mid-play cancels the animations */ }
+  if (gen !== st.gen) return;
+  st.copy.querySelector(".h").textContent = "You and Ada are friends";
+  st.copy.querySelector(".n").textContent = "Look for Ada on the friends board next time you play.";
+  st.accept.textContent = "Friends"; st.playing = false; st.done = true;
+}
+
+async function run(st) {
+  st.playing = true; st.accept.disabled = true; st.accept.textContent = "Accepting...";
+  await wait(380); // the accept call
+  const W = st.stage.clientWidth, H = st.stage.clientHeight, cy = H / 2;
+  const adaCX = W * .22, youCX = W * .78;
+  const { ada, you, tag } = st;
+  const k = st.v.key;
+  if (st.line) go(st.line, [{ opacity: 1 }, { opacity: 0 }], { duration: 200 });
+  go(you.x, [{ opacity: .55 }, { opacity: 1 }], { duration: 200 });
+
+  if (k === "hop") {
+    const dx = adaCX + F * .9 - youCX;
+    await go(you.s, [{ transform: "none" }, { transform: "translateY(5px) scale(1.08,.88)" }], { duration: 140, easing: EASE_OUT }).finished;
+    go(you.x, [{ transform: "none" }, { transform: `translateX(${dx}px)` }], { duration: 480, easing: "cubic-bezier(.35,.1,.3,1)" });
+    go(you.y, [{ transform: "none" }, { transform: "translateY(-58px)", offset: .45, easing: "cubic-bezier(.2,.7,.4,1)" }, { transform: "none", easing: "cubic-bezier(.6,0,.9,.4)" }], { duration: 480 });
+    await go(you.s, [{ transform: "translateY(5px) scale(1.08,.88)" }, { transform: "scale(.94,1.08)", offset: .4 }, { transform: "scale(1)" }], { duration: 480 }).finished;
+    burst(st.stage, adaCX + F * .45, cy);
+    go(ada.s, [{ transform: "none" }, { transform: "translateX(-8px) rotate(-5deg)" }, { transform: "none" }], { duration: 360, easing: EASE_OUT });
+    popTag(tag);
+    await go(you.s, [{ transform: "scale(1.16,.84)" }, { transform: "scale(.96,1.04)" }, { transform: "scale(1)" }], { duration: 320, easing: EASE_OUT }).finished;
+  }
+
+  if (k === "squish") {
+    const tA = W / 2 - F * .4 - adaCX, tY = W / 2 + F * .4 - youCX;
+    go(ada.x, [{ transform: "none" }, { transform: "translateX(-12px)" }], { duration: 170, easing: EASE_OUT });
+    go(ada.s, [{ transform: "none" }, { transform: "rotate(-6deg) scale(.95)" }], { duration: 170, easing: EASE_OUT });
+    go(you.s, [{ transform: "none" }, { transform: "rotate(6deg) scale(.95)" }], { duration: 170, easing: EASE_OUT });
+    await go(you.x, [{ transform: "none", opacity: 1 }, { transform: "translateX(12px)", opacity: 1 }], { duration: 170, easing: EASE_OUT }).finished;
+    go(ada.x, [{ transform: "translateX(-12px)" }, { transform: `translateX(${tA}px)` }], { duration: 230, easing: "cubic-bezier(.6,0,.5,1)" });
+    await go(you.x, [{ transform: "translateX(12px)", opacity: 1 }, { transform: `translateX(${tY}px)`, opacity: 1 }], { duration: 230, easing: "cubic-bezier(.6,0,.5,1)" }).finished;
+    burst(st.stage, W / 2, cy - 10, 10);
+    const squash = [{ transform: "scale(.84,1.12)" }, { transform: "scale(1.06,.96)", offset: .55 }, { transform: "scale(1)" }];
+    go(ada.s, squash, { duration: 420, easing: EASE_OUT });
+    go(you.s, squash, { duration: 420, easing: EASE_OUT });
+    popTag(tag);
+    await go(tag, [{ opacity: 0, transform: "translate(-50%, 34px) scale(.85)" }, { opacity: 1, transform: "translate(-50%, 0) scale(1)" }], { duration: 520, easing: POP }).finished;
+  }
+
+  if (k === "combo") {
+    const tA = W / 2 - F * .44 - adaCX, tY = W / 2 + F * .44 - youCX;
+    // anticipation: lean back
+    go(ada.x, [{ transform: "none" }, { transform: "translateX(-12px)" }], { duration: 170, easing: EASE_OUT });
+    go(ada.s, [{ transform: "none" }, { transform: "rotate(-6deg) scale(.95)" }], { duration: 170, easing: EASE_OUT });
+    go(you.s, [{ transform: "none" }, { transform: "rotate(6deg) scale(.95)" }], { duration: 170, easing: EASE_OUT });
+    await go(you.x, [{ transform: "none", opacity: 1 }, { transform: "translateX(12px)", opacity: 1 }], { duration: 170, easing: EASE_OUT }).finished;
+    // rush together
+    go(ada.x, [{ transform: "translateX(-12px)" }, { transform: `translateX(${tA}px)` }], { duration: 230, easing: "cubic-bezier(.6,0,.5,1)" });
+    await go(you.x, [{ transform: "translateX(12px)", opacity: 1 }, { transform: `translateX(${tY}px)`, opacity: 1 }], { duration: 230, easing: "cubic-bezier(.6,0,.5,1)" }).finished;
+    // squash on contact, then lean in for the photo
+    burst(st.stage, W / 2, cy - 10, 10);
+    go(ada.s, [{ transform: "scale(.84,1.12)" }, { transform: "scale(1.06,.96)", offset: .55 }, { transform: "rotate(6deg)" }], { duration: 420, easing: EASE_OUT });
+    await go(you.s, [{ transform: "scale(.84,1.12)" }, { transform: "scale(1.06,.96)", offset: .55 }, { transform: "rotate(-6deg)" }], { duration: 420, easing: EASE_OUT }).finished;
+    await wait(140);
+    // flash and the polaroid
+    if (!reduced) st.flash.animate([{ opacity: 0 }, { opacity: .92, offset: .2 }, { opacity: 0 }], { duration: 300, easing: "ease-out" });
+    await wait(70);
+    go(st.polaroid, [{ opacity: 0, transform: "scale(1.14) rotate(0deg)" }, { opacity: 1, transform: "scale(1) rotate(-3deg)" }], { duration: 420, easing: POP });
+    for (const f of [ada, you]) go(f.y, [{ transform: "none" }, { transform: "translateY(-12px)" }], { duration: 420, easing: EASE_OUT });
+    go(ada.s, [{ transform: "rotate(6deg)" }, { transform: "rotate(-1deg)" }], { duration: 420, easing: EASE_OUT });
+    await go(you.s, [{ transform: "rotate(-6deg)" }, { transform: "rotate(-5deg)" }], { duration: 420, easing: EASE_OUT }).finished;
+    go(st.polaroid.querySelector("span"), [{ opacity: 0 }, { opacity: 1 }], { duration: 260 });
+    popTag(tag);
+  }
+
+  if (k === "selfie") {
+    const tA = W / 2 - F * .5 - adaCX, tY = W / 2 + F * .5 - youCX;
+    go(ada.x, [{ transform: "none" }, { transform: `translateX(${tA}px)` }], { duration: 320, easing: EASE_OUT });
+    go(ada.s, [{ transform: "none" }, { transform: "rotate(7deg)" }], { duration: 320, easing: EASE_OUT });
+    go(you.s, [{ transform: "none" }, { transform: "rotate(-7deg)" }], { duration: 320, easing: EASE_OUT });
+    await go(you.x, [{ transform: "none", opacity: 1 }, { transform: `translateX(${tY}px)`, opacity: 1 }], { duration: 320, easing: EASE_OUT }).finished;
+    await wait(120);
+    if (!reduced) st.flash.animate([{ opacity: 0 }, { opacity: .92, offset: .2 }, { opacity: 0 }], { duration: 300, easing: "ease-out" });
+    await wait(70);
+    go(st.polaroid, [{ opacity: 0, transform: "scale(1.14) rotate(0deg)" }, { opacity: 1, transform: "scale(1) rotate(-3deg)" }], { duration: 420, easing: POP });
+    for (const f of [ada, you]) {
+      go(f.y, [{ transform: "none" }, { transform: "translateY(-12px)" }], { duration: 420, easing: EASE_OUT });
+    }
+    go(ada.s, [{ transform: "rotate(7deg)" }, { transform: "rotate(-1deg)" }], { duration: 420, easing: EASE_OUT });
+    await go(you.s, [{ transform: "rotate(-7deg)" }, { transform: "rotate(-5deg)" }], { duration: 420, easing: EASE_OUT }).finished;
+    go(st.polaroid.querySelector("span"), [{ opacity: 0 }, { opacity: 1 }], { duration: 260 });
+  }
+
+  if (k === "ticket") {
+    await go(st.stamp, [{ opacity: 0, transform: "scale(1.9) rotate(-30deg)" }, { opacity: 1, transform: "scale(.9) rotate(-12deg)", offset: .7 }, { opacity: 1, transform: "scale(1) rotate(-12deg)" }],
+      { duration: 280, easing: "cubic-bezier(.5,0,.75,.4)" }).finished;
+    go(st.tl, [{ transform: "none" }, { transform: "translateY(2px)" }, { transform: "none" }], { duration: 120 });
+    go(st.tr, [{ transform: "none" }, { transform: "translateY(2px)" }, { transform: "none" }], { duration: 120 });
+    await wait(260);
+    go(st.stamp, [{ opacity: 1 }, { opacity: 0 }], { duration: 160 });
+    const lx = (W / 2 - 24), rx = (W / 2 + 24);
+    const toA = { x: adaCX + F * .36 - lx, y: F * .34 }, toY = { x: youCX + F * .36 - rx, y: F * .34 };
+    go(st.tl, [{ transform: "none" }, { transform: `translate(${toA.x * .5}px,-34px) rotate(-8deg) scale(.7)`, offset: .45 }, { transform: `translate(${toA.x}px,${toA.y}px) rotate(-14deg) scale(.55)` }], { duration: 560, easing: EASE_OUT });
+    await go(st.tr, [{ transform: "none" }, { transform: `translate(${toY.x * .5}px,-34px) rotate(8deg) scale(.7)`, offset: .45 }, { transform: `translate(${toY.x}px,${toY.y}px) rotate(14deg) scale(.55)` }], { duration: 560, easing: EASE_OUT }).finished;
+    const bob = [{ transform: "scale(1)" }, { transform: "scale(1.07)" }, { transform: "scale(1)" }];
+    go(ada.s, bob, { duration: 300, easing: EASE_OUT }); go(you.s, bob, { duration: 300, easing: EASE_OUT });
+    popTag(tag);
+  }
+
+  if (k === "beads") {
+    const r = 30, n = st.beads.length;
+    st.beads.forEach((b, i) => {
+      const a = (i / n) * Math.PI * 2 - Math.PI / 2, x = +b.dataset.x;
+      go(b, [{ transform: "translate(0,0) scale(1)", background: "var(--dot)" },
+        { transform: `translate(${x * .2}px,${-14 + Math.sin(i) * 6}px) scale(1.8)`, background: "var(--lime)", offset: .35 },
+        { transform: `translate(${Math.cos(a) * r - x}px,${Math.sin(a) * r}px) scale(2.1)`, background: "var(--lime)", boxShadow: "0 0 0 .6px var(--ink)" }],
+        { duration: 620, delay: reduced ? 0 : i * 32, easing: EASE_OUT });
+    });
+    await wait(620 + n * 32);
+    go(st.ring, [{ transform: "rotate(0deg)" }, { transform: "rotate(150deg)" }], { duration: 700, easing: EASE_OUT });
+    go(ada.x, [{ transform: "none" }, { transform: "translateX(10px)" }], { duration: 420, easing: EASE_OUT });
+    go(you.x, [{ transform: "none", opacity: 1 }, { transform: "translateX(-10px)", opacity: 1 }], { duration: 420, easing: EASE_OUT });
+    const bob = [{ transform: "scale(1)" }, { transform: "scale(1.06)" }, { transform: "scale(1)" }];
+    go(ada.s, bob, { duration: 320, easing: EASE_OUT }); go(you.s, bob, { duration: 320, easing: EASE_OUT });
+    popTag(tag);
+  }
+
+}
+
+const grid = document.getElementById("grid");
+const states = VARIANTS.map((v, i) => { const s = build(v, i); grid.append(s.card); return s; });
+requestAnimationFrame(() => states.forEach((s) => s.v.key === "beads" && layoutBeads(s)));
+let lastW = innerWidth, rt;
+addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
+  if (Math.abs(innerWidth - lastW) < 40) return; lastW = innerWidth;
+  states.forEach((s) => !s.playing && s.setup()); }, 200); });
+
+document.getElementById("playAll").onclick = () => states.forEach((s, i) => setTimeout(() => play(s), reduced ? 0 : i * 120));
+document.getElementById("resetAll").onclick = () => states.forEach((s) => s.setup());
+const rb = document.getElementById("reduce");
+rb.onclick = () => { reduced = rb.getAttribute("aria-pressed") !== "true"; rb.setAttribute("aria-pressed", String(reduced)); states.forEach((s) => s.setup()); };
+</script>

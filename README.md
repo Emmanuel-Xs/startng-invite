@@ -4,26 +4,50 @@ An HNG15 (Week 5) design demo of start.ng's friend invite page. **Mock data only
 
 The UI, styles, top bar, theme toggle, character code and 3D face snapshots are copied from
 [`Cybertron-HNG/startng-fe`](https://github.com/Cybertron-HNG/startng-fe), which was used read-only as the source.
-Nothing here is a change to that repo. The design is described in [`INVITE_SPEC.md`](./INVITE_SPEC.md).
+Nothing here is a change to that repo. The first design is in [`INVITE_SPEC.md`](./INVITE_SPEC.md); the accept
+animation was then settled in [`accept-reference.html`](./accept-reference.html) (the "Squish hug + selfie" card).
 
 **Live demo: https://startng-invite.vercel.app**
 
-![Guest signs in, taps Accept, and their face hops along the dotted line to sit next to Ada](./docs/demo.gif)
+![A guest signs in, taps Accept, the two faces lean back, rush together and squash into a hug, then a polaroid of the two of them drops in with "+1 friend"](./docs/demo.gif)
 
 ## The idea
 
-When someone sends you an invite, their character is waiting with a seat saved next to them. Tap **Accept** and your
-character hops along the dotted line into the spot beside them, and the two of you become friends.
+When someone sends you an invite, their character is waiting with a seat saved next to them. Tap **Accept** and the
+two of you meet in the middle and take a photo together.
 
-- Page opens: calm. Ada pops in, waves once, the dotted line draws to your seat (under a second).
-- Accept: the hop, a single bump, the dotted line turns solid lime, a "Friends" tag pops, a small burst of lime dots. About 1.2s, then still.
-- Motion is transform, opacity and `stroke-dashoffset` only. Nothing loops.
-- Reduced motion (the system setting, or the demo's "Preview reduced motion") shows every state's final picture instantly.
+- **Page opens: calm.** Ada pops in and waves once, the dotted line draws to your seat (under a second).
+- **Accept: the "Squish hug + selfie".** You both lean back (170ms), rush together (230ms) and squash on contact with a
+  small lime burst, then tilt in. A camera flash, and a polaroid drops in behind the two of you
+  (caption "Ada + 99plusOne · today's date"). The faces lift into the photo and a "+1 friend" chip pops on its top edge.
+  Plays once, nothing loops.
+- Built with the Web Animations API on nested wrappers per face (x, y, scale), following the reference's `combo` block
+  step for step: `src/invite/accept.ts`.
+- Motion is transform, opacity and `stroke-dashoffset` only.
+- **Reduced motion** (the system setting, or the demo's "Preview reduced motion") jumps straight to the final polaroid.
 
-## The one addition to the real page
+## What changed from the real invite page
 
-**Copy link** (a ghost button on the own-link state). The spec has the empty seat nudge when you tap it, but start.ng's
-real invite page has no such button, so this demo adds it. Everything else (every word, button and state) is the real page's.
+The real page's words and states are kept; these are the differences.
+
+**New copy**
+
+| State | Heading | Note | Button / link |
+| --- | --- | --- | --- |
+| Guest | Ada saved you a seat | Accept and you'll follow each other. You'll see each other on friends' leaderboards and can play in the same crews. | Sign in to accept |
+| Signed in | Ada saved you a seat | (same) | Accept, then "Accepting..." while it works |
+| Accepted | You and Ada are friends | You follow each other now. Look for Ada on the friends board next time you play. | See your friends (link) |
+| Own link | This is your invite link | Send it to a friend. Whoever accepts takes the empty seat and becomes your friend. | Copy link, then "Copied" for 2s |
+| Expired | This invite has expired | Invite links only last a while. Ask your friend to send a new one, or get your own link to share. | "get your own link" (link) |
+
+**The heading fix.** The real page shows "Ada wants to be friends on start.ng" to Ada herself when she opens her own
+link, because it only checks whether the invite was accepted. The own-link state now has its own heading.
+
+**The one new button: Copy link** (a ghost button on the own-link state). The real page has no such button there; it
+lets the empty seat nudge when tapped.
+
+**The expired picture shows no inviter.** start.ng's API sends nothing about the inviter for a dead link, so there is
+no face or name: two empty dashed seats, a small static "z" on each, and the dotted line broken in the middle.
 
 ## Routes
 
@@ -45,7 +69,8 @@ Vite + React 18 + TypeScript + `three` 0.185.1 (the same versions as startng-fe)
 
 ## Where things are
 
-- `src/invite/Bench.tsx`, `src/invite/invite.css`: the two seats, the line and all the motion
-- `src/invite/InvitePage.tsx`: the page (starting point: startng-fe's `InvitePage.tsx`, same words, buttons and states)
+- `src/invite/accept.ts`: the accept sequence (Web Animations API)
+- `src/invite/Bench.tsx`, `src/invite/invite.css`: the stage, the seats, the line, the polaroid and the opening
+- `src/invite/InvitePage.tsx`: the page (starting point: startng-fe's `InvitePage.tsx`)
 - `src/mock.ts`: Ada, you, and the accept call (400ms)
 - `src/Avatar.tsx`: startng-fe's `AvatarFace` plus a size left to CSS. start.ng's `.avatar` circle (lime, first letter) shows at once and fades out when the face is ready (or stays, if WebGL fails). `three/snapshot` starts loading in `src/main.tsx`

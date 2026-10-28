@@ -1,11 +1,8 @@
-import { useEffect, useRef, useState } from "react";
-import { acceptInvite, ADA, displayName, FollowsError, previewInvite, type InvitePreview, type Player } from "../mock";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { acceptInvite, displayName, FollowsError, previewInvite, type InvitePreview, type Player } from "../mock";
 import Bench, { type BenchMode } from "./Bench";
 import "./follows.css";
 import "./invite.css";
-
-/** How long after the hop starts the faces land, so the words change on the landing and not before it. */
-const LAND_MS = 480;
 
 type Props = {
   user: Player | null;
@@ -16,13 +13,13 @@ type Props = {
 };
 
 /** start.ng/f/<code>: someone's invite link. Accepting makes you friends (you both follow each other).
- *  The words, buttons and states are the real page's; only the picture above the h1 is new (the bench). */
+ *  Same states and buttons as the real page; the words and the picture above them are new (see the README). */
 export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
   const [invite, setInvite] = useState<InvitePreview | null | undefined>(undefined); // null: no such link (or expired)
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [landed, setLanded] = useState(false); // the picture: the two faces are together
-  const [done, setDone] = useState(false); // the words: you are friends
+  const [landed, setLanded] = useState(false); // the call came back: the sequence is playing
+  const [done, setDone] = useState(false); // the sequence has finished: the words change
   const [nudge, setNudge] = useState(0);
   const [copied, setCopied] = useState(false);
   const timers = useRef<number[]>([]);
@@ -49,8 +46,6 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
     try {
       await acceptInvite(code);
       setLanded(true);
-      if (reduced) setDone(true);
-      else timers.current.push(window.setTimeout(() => setDone(true), LAND_MS));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
@@ -58,11 +53,13 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
     }
   }
 
+  const finished = useCallback(() => setDone(true), []);
+
   function copyLink() {
     navigator.clipboard?.writeText(window.location.href).catch(() => {});
     setNudge((n) => n + 1);
     setCopied(true);
-    timers.current.push(window.setTimeout(() => setCopied(false), 1600));
+    timers.current.push(window.setTimeout(() => setCopied(false), 2000));
   }
 
   const motion = reduced ? "off" : "on";
@@ -73,10 +70,10 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
   if (invite === null) {
     return (
       <section className="container follows-page">
-        {/* The real API sends no inviter for a dead link; the design shows the friend who sent it, asleep. */}
         <div className="follows-invite-card" data-motion={motion}>
-          <Bench inviter={ADA} you={null} mode="expired" busy={false} accepted={false} nudge={0} />
-          <p className="empty">This invite link has expired or doesn't exist. Ask your friend for a new one, or <a href="/follows" onClick={inert}>get your own link</a>.</p>
+          <Bench inviter={null} you={null} mode="expired" accepted={false} reduced={reduced} onDone={finished} nudge={0} />
+          <h1>This invite has expired</h1>
+          <p className="note">Invite links only last a while. Ask your friend to send a new one, or <a href="/follows" onClick={inert}>get your own link</a> to share.</p>
         </div>
       </section>
     );
@@ -87,23 +84,23 @@ export default function InvitePage({ user, onSignIn, code, reduced }: Props) {
   const name = displayName(inviter);
   const own = user?.id === inviter.id;
   const mode: BenchMode = own ? "own" : user ? "signed" : "guest";
-  const heading = done ? `You and ${name} are friends` : `${name} wants to be friends on start.ng`;
+  const heading = own ? "This is your invite link" : done ? `You and ${name} are friends` : `${name} saved you a seat`;
   return (
     <section className="container follows-page">
       <div className="follows-invite-card" data-motion={motion}>
-        <Bench inviter={inviter} you={own ? null : user} mode={mode} busy={busy} accepted={landed} nudge={nudge} />
+        <Bench inviter={inviter} you={own ? null : user} mode={mode} accepted={landed} reduced={reduced} onDone={finished} nudge={nudge} />
         <h1 aria-live="polite"><span key={heading} className={done ? "swap" : undefined}>{heading}</span></h1>
         {own ? (
           <>
-            <p className="note">This is your own invite link. Send it to a friend: anyone who accepts it becomes your friend.</p>
+            <p className="note">Send it to a friend. Whoever accepts takes the empty seat and becomes your friend.</p>
             <button type="button" className="ghost" onClick={copyLink}>{copied ? "Copied" : "Copy link"}</button>
           </>
         ) : done ? (
-          <p className="ok swap">You now follow each other. <a href="/follows" onClick={inert}>See your friends</a></p>
+          <p className="note swap">You follow each other now. Look for {name} on the friends board next time you play. <a href="/follows" onClick={inert}>See your friends</a></p>
         ) : (
           <>
-            <p className="note">Friends follow each other, so you can see each other on friends' leaderboards and in crews.</p>
-            <button type="button" disabled={busy || landed} onClick={accept}>{!user ? "Sign in to accept" : busy || landed ? "..." : "Accept"}</button>
+            <p className="note">Accept and you'll follow each other. You'll see each other on friends' leaderboards and can play in the same crews.</p>
+            <button type="button" disabled={busy || landed} onClick={accept}>{!user ? "Sign in to accept" : busy || landed ? "Accepting..." : "Accept"}</button>
           </>
         )}
         {error && <p className="error">{error}</p>}
