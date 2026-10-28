@@ -1,0 +1,20 @@
+/* Friends & follows (src/features/follows). Colours come from the site's variables, so dark mode works. */
+.follows-page { padding-top: 32px; padding-bottom: 48px; }
+.follows-page h1 { letter-spacing: -.03em; }
+.follows-invite { display: flex; gap: 16px; justify-content: space-between; align-items: center; flex-wrap: wrap; padding: 20px; margin: 16px 0 24px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+.follows-invite h2 { margin: 0 0 4px; font-size: 1.2rem; }
+.follows-invite > div:first-child { flex: 1 1 280px; }
+.follows-link { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
+.follows-link code { font-family: var(--mono); font-size: .85rem; overflow-wrap: anywhere; color: var(--text-2); }
+.follows-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.follows-tabs button { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+.follows-tabs button.on { background: var(--lime); color: var(--on-lime); border-color: var(--lime); }
+.follows-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.follows-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.follows-name { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.follows-private { margin-top: 16px; }
+.follow-button { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.follow-count { color: var(--muted); font-size: .9rem; }
+.follows-invite-card { max-width: 480px; margin: 24px auto; padding: 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; }
+.follows-invite-card h1 { font-size: 1.6rem; margin: 0; }
+.follows-profile { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
