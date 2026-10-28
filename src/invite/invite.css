@@ -5,10 +5,10 @@
 .follows-invite-card h1 { overflow-wrap: anywhere; }
 
 /* ---- the picture ---- */
-.bench { --seat: 96px; --gap: 140px; --land: 32px; --room: 34px; --lean: 18px; --close: calc((var(--gap) - var(--land)) / 2);
+.bench { --seat: 96px; --gap: 140px; --land: 40px; --room: 34px; --lean: 18px; --close: calc((var(--gap) - var(--land)) / 2);
   --line-y: calc(var(--room) + var(--seat) / 2);
   position: relative; flex: none; width: calc(var(--seat) * 2 + var(--gap)); max-width: 100%; height: calc(var(--seat) + var(--room)); margin: 0 auto 4px; }
-@media (max-width: 600px) { .bench { --seat: 72px; --gap: 112px; --land: 28px; --room: 30px; --lean: 15px; } }
+@media (max-width: 600px) { .bench { --seat: 72px; --gap: 112px; --land: 34px; --room: 30px; --lean: 15px; } }
 
 /* the two seats. Ada's is on the left, the one saved for you is on the right. */
 .bench-seat, .bench-slot { position: absolute; top: var(--room); width: var(--seat); height: var(--seat); }
@@ -108,7 +108,7 @@
   0% { opacity: 0; transform: scale(.9) rotate(0); animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1); }
   38% { opacity: 1; transform: scale(1) rotate(0); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
   56% { transform: scale(1) rotate(-9deg); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
-  80% { transform: scale(1) rotate(8deg); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  80% { transform: scale(1) rotate(6deg); animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
   100% { transform: scale(1) rotate(0); }
 }
 @keyframes bench-doze { from { opacity: 0; transform: scale(.9); } }
@@ -177,4 +177,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bench *, .swap { animation: none !important; transition: none !important; }
+  .avatar-swap > .avatar { transition: none; }
 }
