@@ -50,6 +50,7 @@ export default function Bench({ inviter, you, mode, accepted, reduced, onDone, n
   useEffect(() => {
     if (!accepted || !ada.x.current || !youFace.x.current) return;
     let live = true;
+    const stop = new AbortController();
     const box = stage.current!;
     playAccept(
       {
@@ -57,8 +58,9 @@ export default function Bench({ inviter, you, mode, accepted, reduced, onDone, n
         ada: { x: ada.x.current, y: ada.y.current!, s: ada.s.current! }, you: { x: youFace.x.current, y: youFace.y.current!, s: youFace.s.current! },
       },
       latest.current.reduced,
+      stop.signal,
     ).then(() => live && latest.current.onDone(), () => {});
-    return () => { live = false; resetAccept(box); };
+    return () => { live = false; stop.abort(); resetAccept(box); };
   }, [accepted]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const dotted = expired ? [[0, 40], [60, 100]] : [[0, 100]];
