@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useId } from "react";
 import { AvatarFace } from "../Avatar";
 import { displayName, type Player } from "../mock";
 
@@ -22,22 +22,13 @@ type Props = {
  *  It is decorative: the h1, the note and the buttons carry all the meaning. */
 export default function Bench({ inviter, you, mode, busy, accepted, nudge }: Props) {
   const reveal = useId().replace(/:/g, "");
-  const [ready, setReady] = useState(false); // the inviter's face is showing: the opening can start
-  const [youReady, setYouReady] = useState(false);
-
-  // If the face never comes (a slow network), open the page anyway.
-  useEffect(() => {
-    const t = setTimeout(() => setReady(true), 2000);
-    return () => clearTimeout(t);
-  }, []);
-
   const expired = mode === "expired";
   const phase = accepted ? "accepted" : busy ? "busy" : "idle";
   const hasFace = mode === "signed" && !!you;
   const dotted = expired ? [[0, 40], [60, 100]] : [[0, 100]];
 
   return (
-    <div className="bench" aria-hidden="true" data-mode={mode} data-phase={phase} data-ready={ready}>
+    <div className="bench" aria-hidden="true" data-mode={mode} data-phase={phase}>
       <svg className="bench-line" focusable="false">
         <defs>
           <mask id={reveal} maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%">
@@ -61,7 +52,7 @@ export default function Bench({ inviter, you, mode, busy, accepted, nudge }: Pro
         <div className="bench-hop">
           <div className="bench-pop">
             <div className="bench-bob">
-              <AvatarFace style={inviter.character!.style} letter={displayName(inviter)} onReady={() => setReady(true)} />
+              <AvatarFace style={inviter.character!.style} letter={displayName(inviter)} />
               {expired && (
                 <svg className="bench-eyes" viewBox="0 0 96 96" focusable="false">
                   <path d="M32 53.5q4 3.5 8 0M49.5 53.5q4 3.5 8 0" />
@@ -73,11 +64,11 @@ export default function Bench({ inviter, you, mode, busy, accepted, nudge }: Pro
       </div>
 
       {hasFace && (
-        <div className="bench-seat bench-seat--you" data-ready={youReady}>
+        <div className="bench-seat bench-seat--you">
           <div className="bench-hop">
             <div className="bench-pop">
               <div className="bench-bob">
-                <AvatarFace key={you.id} style={you.character!.style} letter={displayName(you)} onReady={() => setYouReady(true)} />
+                <AvatarFace key={you.id} style={you.character!.style} letter={displayName(you)} />
               </div>
             </div>
           </div>
@@ -90,7 +81,7 @@ export default function Bench({ inviter, you, mode, busy, accepted, nudge }: Pro
       </svg>
 
       <div className="bench-tag"><span className="tag">Friends</span></div>
-      <div className="bench-burst">{Array.from({ length: 8 }, (_, i) => <i key={i} />)}</div>
+      <div className="bench-burst">{Array.from({ length: 12 }, (_, i) => <i key={i} />)}</div>
       {expired && <span className="bench-z">z</span>}
     </div>
   );

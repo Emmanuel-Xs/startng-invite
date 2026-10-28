@@ -3,6 +3,9 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./styles.css";
 
+// Start fetching three.js now, so the faces are ready by the time the page needs them.
+void import("./three/snapshot");
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
